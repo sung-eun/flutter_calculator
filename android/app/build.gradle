@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.sung_eun.calculator"
+        applicationId "com.example.solocoding2019_base"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()

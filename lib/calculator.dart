@@ -12,6 +12,16 @@ class CalculatorState extends State<Calculator> {
         appBar: new AppBar(
           title: new Text("Calculator"),
         ),
-        body: new Container(child: new Text("Hello word")));
+        body: new GridView.count(
+          crossAxisCount: 4,
+          children: new List<Widget>.generate(20, (index) {
+            return new GridTile(
+              child: new Card(
+                  child: new Center(
+                    child: new Text('$index'),
+                  )),
+            );
+          }),
+        ));
   }
 }

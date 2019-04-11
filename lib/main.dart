@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'calculator.dart';
 
 void main() => runApp(MyApp());
@@ -16,9 +17,8 @@ class MyAppState extends State<MyApp> {
     return MaterialApp(
         title: 'solocoding2019', // application name
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.amber,
         ),
-        home: new Calculator()
-    );
+        home: Calculator());
   }
 }

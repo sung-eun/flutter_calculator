@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'calculator.dart';
 import 'history.dart';
 
 void main() => runApp(MyApp());
 
-typedef KeyPadCallBack = void Function(String key);
+typedef KeyPadCallBack = void Function(Key key);
 
 class MyApp extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  var expression = "0";
+  var expression = "";
   var output = "";
 
   @override
@@ -26,52 +27,73 @@ class MyAppState extends State<MyApp> {
         home: Scaffold(
             appBar: AppBar(
               title: Text("Calculator"),
-              actions: <Widget>[IconButton(
-                icon: Icon(Icons.history),
-                onPressed: () {
-                  Navigator.push(context,
-                      new MaterialPageRoute(
-                          builder: (context) => new History()));
-                },
-              )
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.history),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new History()));
+                  },
+                )
               ],
             ),
             body: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[buildLabels(), KeyPad(onKeyPadClick)],
             )));
   }
 
-  Expanded buildLabels() {
-    var expressionWidget = Text(
-      expression,
-      style: TextStyle(fontSize: 35.0, color: Colors.black),
-      textAlign: TextAlign.right,
-    );
-
-    var outputWidget = Text(
-      output,
-      style: TextStyle(fontSize: 35.0, color: Colors.black),
-      textAlign: TextAlign.right,
-    );
-
-    return Expanded(
-        flex: 2,
-        child: new Container(
-          alignment: Alignment.centerRight,
-          color: Colors.white,
-          child: Padding(
+  Column buildLabels() {
+    var expressionWidget = Container(
+        alignment: Alignment.centerRight,
+        color: Colors.white,
+        child: Padding(
             padding: EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[expressionWidget, outputWidget],
-            ),
-          ),
-        ));
+            child: Text(expression,
+                style: TextStyle(fontSize: 30.0, color: Colors.black54),
+                textAlign: TextAlign.right)));
+
+    var outputWidget = Container(
+        alignment: Alignment.centerRight,
+        color: Colors.white,
+        child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(output,
+                style: TextStyle(fontSize: 35.0, color: Colors.black),
+                textAlign: TextAlign.right)));
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[expressionWidget, outputWidget],
+    );
   }
 
-  void onKeyPadClick(String key) {
+  void onKeyPadClick(Key key) {
+    var _expression = expression;
+    var _output = "";
+
+    final buttonValue = key.buttonValue;
+    final displayValue = key.displayValue;
+    final keyType = key.keyType;
+
+    if (buttonValue == 'C') {
+      _expression = "";
+      _output = "";
+    } else if (buttonValue == '=') {
+      final calculator = new Calculator();
+      _output = calculator.parseExpression(expression).toString();
+    } else if (keyType == KeyType.DIGIT) {
+      _expression += displayValue;
+    } else if (keyType == KeyType.OPERATOR) {
+      //&& _expression.last == digit
+      _expression += " " + displayValue + " ";
+    }
+
     setState(() {
-      expression = key;
+      expression = _expression;
+      output = _output;
     });
   }
 }
@@ -87,33 +109,56 @@ class KeyPad extends StatelessWidget {
       flex: 4,
       child: new GridView.count(
         crossAxisCount: 4,
-        children: <String>[
-              'C', '%', 'x²', 'x³',
-              '7', '8', '9', '×',
-              '4', '5', '6', '−',
-              '1', '2', '3', '+',
-              '0', '.', 'x!', '='
-            ].map((key) {
-              return new GridTile(
-                child: new KeyPadButton(key, keyPadCallBack),
-              );
-            }).toList(),
-        ),
+        children: <Key>[
+          Key('C', '', KeyType.OPERATOR),
+          Key('%', '%', KeyType.OPERATOR),
+          Key('x²', '²', KeyType.OPERATOR),
+          Key('x³', '³', KeyType.OPERATOR),
+          Key('7', '7', KeyType.DIGIT),
+          Key('8', '8', KeyType.DIGIT),
+          Key('9', '9', KeyType.DIGIT),
+          Key('×', '×', KeyType.OPERATOR),
+          Key('4', '4', KeyType.DIGIT),
+          Key('5', '5', KeyType.DIGIT),
+          Key('6', '6', KeyType.DIGIT),
+          Key('−', '-', KeyType.OPERATOR),
+          Key('1', '1', KeyType.DIGIT),
+          Key('2', '2', KeyType.DIGIT),
+          Key('3', '3', KeyType.DIGIT),
+          Key('+', '+', KeyType.OPERATOR),
+          Key('0', '0', KeyType.DIGIT),
+          Key('.', '.', KeyType.DIGIT),
+          Key('÷', '÷', KeyType.OPERATOR),
+          Key('=', '', KeyType.OPERATOR)
+        ].map((key) {
+          return new GridTile(
+            child: new KeyPadButton(key, keyPadCallBack),
+          );
+        }).toList(),
+      ),
     );
   }
 }
 
+class Key {
+  final String buttonValue;
+  final String displayValue;
+  final KeyType keyType;
+
+  Key(this.buttonValue, this.displayValue, this.keyType);
+}
+
 class KeyPadButton extends StatelessWidget {
-  final keyValue;
+  final Key keyPad;
   final KeyPadCallBack keyPadCallBack;
 
-  KeyPadButton(this.keyValue, this.keyPadCallBack);
+  KeyPadButton(this.keyPad, this.keyPadCallBack);
 
   @override
   Widget build(BuildContext context) {
     return new OutlineButton(
       child: new Text(
-        keyValue,
+        keyPad.buttonValue,
         style: new TextStyle(
           fontSize: 20.0,
           color: Colors.black,
@@ -121,7 +166,7 @@ class KeyPadButton extends StatelessWidget {
       ),
       borderSide: BorderSide(width: 0.25, color: Colors.black12),
       onPressed: () {
-        keyPadCallBack(keyValue);
+        keyPadCallBack(keyPad);
       },
     );
   }

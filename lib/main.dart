@@ -4,13 +4,17 @@ import 'history.dart';
 
 void main() => runApp(MyApp());
 
-// This widget is the root of your application.
+typedef KeyPadCallBack = void Function(String key);
+
 class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new MyAppState();
 }
 
 class MyAppState extends State<MyApp> {
+  var expression = "0";
+  var output = "";
+
   @override
   Widget build(BuildContext context) {
     // set material design app
@@ -19,54 +23,34 @@ class MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.amber,
         ),
-        home: Main());
+        home: Scaffold(
+            appBar: AppBar(
+              title: Text("Calculator"),
+              actions: <Widget>[IconButton(
+                icon: Icon(Icons.history),
+                onPressed: () {
+                  Navigator.push(context,
+                      new MaterialPageRoute(
+                          builder: (context) => new History()));
+                },
+              )
+              ],
+            ),
+            body: Column(
+              children: <Widget>[buildLabels(), KeyPad(onKeyPadClick)],
+            )));
   }
-}
 
-class Main extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final historyButton = IconButton(
-      icon: Icon(Icons.history),
-      onPressed: () {
-        Navigator.push(context,
-            new MaterialPageRoute(builder: (context) => new History()));
-      },
-    );
-
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Calculator"),
-          actions: <Widget>[historyButton],
-        ),
-        body: Column(
-          children: <Widget>[Label(), KeyPad()],
-        ));
-  }
-}
-
-class Label extends StatefulWidget {
-  @override
-  State<Label> createState() {
-    return LabelState();
-  }
-}
-
-class LabelState extends State<Label> {
-  var expression = "0";
-  var output = "";
-
-  @override
-  Widget build(BuildContext context) {
+  Expanded buildLabels() {
     var expressionWidget = Text(
       expression,
-      style: TextStyle(fontSize: 50.0, color: Colors.black),
+      style: TextStyle(fontSize: 35.0, color: Colors.black),
       textAlign: TextAlign.right,
     );
 
     var outputWidget = Text(
       output,
-      style: TextStyle(fontSize: 50.0, color: Colors.black),
+      style: TextStyle(fontSize: 35.0, color: Colors.black),
       textAlign: TextAlign.right,
     );
 
@@ -78,23 +62,32 @@ class LabelState extends State<Label> {
           child: Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[expressionWidget, outputWidget],
             ),
           ),
         ));
   }
+
+  void onKeyPadClick(String key) {
+    setState(() {
+      expression = key;
+    });
+  }
 }
 
 class KeyPad extends StatelessWidget {
+  final KeyPadCallBack keyPadCallBack;
+
+  KeyPad(this.keyPadCallBack);
+
   @override
   Widget build(BuildContext context) {
     return new Expanded(
-        flex: 4,
-        child: new GridView.count(
-            crossAxisCount: 4,
-            padding: const EdgeInsets.all(1.5),
-            children: <String>[
+      flex: 4,
+      child: new GridView.count(
+        crossAxisCount: 4,
+        children: <String>[
               'C', '%', 'x²', 'x³',
               '7', '8', '9', '×',
               '4', '5', '6', '−',
@@ -102,18 +95,19 @@ class KeyPad extends StatelessWidget {
               '0', '.', 'x!', '='
             ].map((key) {
               return new GridTile(
-                child: new KeyPadButton(key),
+                child: new KeyPadButton(key, keyPadCallBack),
               );
             }).toList(),
-          ),
-        );
+        ),
+    );
   }
 }
 
 class KeyPadButton extends StatelessWidget {
-  KeyPadButton(this.keyValue);
-
   final keyValue;
+  final KeyPadCallBack keyPadCallBack;
+
+  KeyPadButton(this.keyValue, this.keyPadCallBack);
 
   @override
   Widget build(BuildContext context) {
@@ -121,19 +115,14 @@ class KeyPadButton extends StatelessWidget {
       child: new Text(
         keyValue,
         style: new TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 22.0,
+          fontSize: 20.0,
           color: Colors.black,
         ),
       ),
-      borderSide: BorderSide(width: 0.5, color: Colors.black12),
+      borderSide: BorderSide(width: 0.25, color: Colors.black12),
       onPressed: () {
-        onClickKeyPad(keyValue);
+        keyPadCallBack(keyValue);
       },
     );
   }
-}
-
-void onClickKeyPad(String key) {
-//TODO
 }

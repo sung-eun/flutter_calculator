@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'calculator.dart';
 import 'history.dart';
@@ -13,12 +14,13 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
+  BuildContext context;
+
   var expression = "";
   var output = "";
 
   @override
   Widget build(BuildContext context) {
-    // set material design app
     return MaterialApp(
         title: 'solocoding2019', // application name
         theme: ThemeData(
@@ -39,10 +41,13 @@ class MyAppState extends State<MyApp> {
                 )
               ],
             ),
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[buildLabels(), KeyPad(onKeyPadClick)],
-            )));
+            body: Builder(builder: (BuildContext context) {
+              this.context = context;
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[buildLabels(), KeyPad(onKeyPadClick)],
+              );
+            })));
   }
 
   Column buildLabels() {
@@ -50,7 +55,7 @@ class MyAppState extends State<MyApp> {
         alignment: Alignment.centerRight,
         color: Colors.white,
         child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(8.0),
             child: Text(expression,
                 style: TextStyle(fontSize: 30.0, color: Colors.black54),
                 textAlign: TextAlign.right)));
@@ -58,11 +63,15 @@ class MyAppState extends State<MyApp> {
     var outputWidget = Container(
         alignment: Alignment.centerRight,
         color: Colors.white,
-        child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(output,
-                style: TextStyle(fontSize: 35.0, color: Colors.black),
-                textAlign: TextAlign.right)));
+        child: GestureDetector(
+            onLongPress: () {
+              copyOutput(output);
+            },
+            child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(output,
+                    style: TextStyle(fontSize: 35.0, color: Colors.black),
+                    textAlign: TextAlign.right))));
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -95,6 +104,14 @@ class MyAppState extends State<MyApp> {
       expression = _expression;
       output = _output;
     });
+  }
+
+  void copyOutput(String output) {
+    Clipboard.setData(ClipboardData(text: output));
+
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content: new Text("복사되었습니다."),
+    ));
   }
 }
 

@@ -71,9 +71,11 @@ class KeyPadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonValue = keyPad.buttonValue;
+
     return new OutlineButton(
       child: new Text(
-        keyPad.buttonValue,
+        buttonValue,
         style: new TextStyle(
           fontSize: 20.0,
           color: Colors.black,
@@ -81,9 +83,12 @@ class KeyPadButton extends StatelessWidget {
       ),
       borderSide: BorderSide(width: 0.25, color: Colors.black12),
       highlightColor: Colors.white70,
-      onPressed: () {
-        keyPadCallBack(keyPad);
-      },
+      disabledTextColor: Colors.black38,
+      onPressed: (buttonValue == "(" || buttonValue == ")")
+          ? null
+          : () {
+              keyPadCallBack(keyPad);
+            },
     );
   }
 }

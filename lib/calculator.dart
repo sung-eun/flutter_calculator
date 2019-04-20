@@ -13,7 +13,6 @@ class Calculator {
 
   num parseExpression(String expression) {
     expression.split(' ').forEach((String c) {
-      print("c = $c");
       if (isOperator(c)) {
         if (operatorQueue.isEmpty) {
           operatorQueue.addLast(c);

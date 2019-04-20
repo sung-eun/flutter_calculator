@@ -1,5 +1,8 @@
 import 'dart:collection';
 
+import 'data/database.dart';
+import 'data/model.dart';
+
 var operators = <String>['×', '−', '+', '÷', '%', '²', '³'];
 
 class Calculator {
@@ -31,7 +34,9 @@ class Calculator {
       calculate();
     }
 
-    return digitQueue.removeLast();
+    num result = digitQueue.removeLast();
+    DatabaseHelper.instance.insert(HistoryData(expression, result.toString()));
+    return result;
   }
 
   void calculate() {

@@ -9,10 +9,10 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new MyAppState();
+  State<StatefulWidget> createState() => new _MyAppState();
 }
 
-class MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> {
   BuildContext context;
 
   var expression = "";
@@ -59,7 +59,11 @@ class MyAppState extends State<MyApp> {
             padding: EdgeInsets.all(16.0),
             child: Text(expression,
                 style: TextStyle(
-                    fontSize: 30.0, color: Colors.black54, letterSpacing: -0.8),
+                  fontSize: 30.0,
+                  color: Colors.black54,
+                  letterSpacing: -0.5,
+                  wordSpacing: -0.5,
+                ),
                 textAlign: TextAlign.left)));
 
     var outputWidget = Container(

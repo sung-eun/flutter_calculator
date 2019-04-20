@@ -30,7 +30,7 @@ class Calculator {
           operatorQueue.addLast(c);
         }
       } else {
-        digitQueue.addLast(double.parse(c));
+        digitQueue.addLast(num.parse(c));
       }
     });
 
@@ -50,7 +50,7 @@ class Calculator {
     switch (op) {
       case '+':
         return op1 + op2;
-      case '-':
+      case '−':
         return op1 - op2;
       case '×':
         return op1 * op2;
@@ -64,7 +64,7 @@ class Calculator {
   int getPriority(String op) {
     switch (op) {
       case '+':
-      case '-':
+      case '−':
         return 0;
       case '×':
       case '÷':

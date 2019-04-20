@@ -93,8 +93,6 @@ class MyAppState extends State<MyApp> {
     var _output = "";
 
     final length = _expression.length;
-    bool isOperatorPossible =
-        _expression.isNotEmpty && isNumeric(_expression[length - 1]);
 
     if (buttonValue == '⌫' && _expression.isNotEmpty) {
       num deleteLength;
@@ -108,7 +106,7 @@ class MyAppState extends State<MyApp> {
       _expression = "";
     } else if (buttonValue == '=') {
       final calculator = new Calculator();
-      _output = calculator.parseExpression(expression).toString();
+      _output = calculator.parseExpression(expression.trim()).toString();
     } else if (keyType == KeyType.POINT &&
         isDecimalPointPossible(_expression)) {
       _expression += displayValue;
@@ -116,7 +114,7 @@ class MyAppState extends State<MyApp> {
         (keyType == KeyType.RANDOM &&
             (_expression.isEmpty || _expression[length - 1] == ' '))) {
       _expression += displayValue;
-    } else if (keyType == KeyType.OPERATOR && isOperatorPossible) {
+    } else if (keyType == KeyType.OPERATOR && isOperatorPossible(_expression)) {
       _expression += " " + displayValue + " ";
     }
 
@@ -126,10 +124,21 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  bool isOperatorPossible(String s) {
+    if (s.isEmpty) {
+      return false;
+    }
+
+    List<String> values = s.split(" ");
+    String lastValue = values[values.length - 1];
+    return isNumeric(lastValue) || s.endsWith('² ') || s.endsWith('³ ');
+  }
+
   bool isNumeric(String s) {
     if (s == null) {
       return false;
     }
+
     try {
       return double.parse(s) != null;
     } catch (exception) {
@@ -143,8 +152,8 @@ class MyAppState extends State<MyApp> {
     }
 
     List<String> values = s.split(" ");
-    String lastNumber = values[values.length - 1];
-    bool isContainsDot = !lastNumber.contains(r".");
+    String lastValue = values[values.length - 1];
+    bool isContainsDot = !lastValue.contains(r".");
     return isContainsDot;
   }
 

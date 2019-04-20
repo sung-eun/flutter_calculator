@@ -1,11 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'calculator.dart';
 import 'history.dart';
-import 'keypad.dart';
+import 'keypad_callback.dart';
+import 'keypad_ui.dart';
 
 void main() => runApp(MyApp());
 
@@ -60,8 +58,9 @@ class MyAppState extends State<MyApp> {
         child: Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(expression,
-                style: TextStyle(fontSize: 30.0, color: Colors.black54),
-                textAlign: TextAlign.right)));
+                style: TextStyle(
+                    fontSize: 30.0, color: Colors.black54, letterSpacing: -0.8),
+                textAlign: TextAlign.left)));
 
     var outputWidget = Container(
         alignment: Alignment.bottomRight,
@@ -73,7 +72,7 @@ class MyAppState extends State<MyApp> {
                 padding: EdgeInsets.all(16.0),
                 child: Text(output,
                     style: TextStyle(fontSize: 35.0, color: Colors.black),
-                    textAlign: TextAlign.right))));
+                    textAlign: TextAlign.left))));
 
     return Expanded(
       flex: 2,
@@ -85,80 +84,16 @@ class MyAppState extends State<MyApp> {
   }
 
   void onKeyPadClick(Button key) {
-    final buttonValue = key.buttonValue;
-    final displayValue = key.displayValue;
-    final keyType = key.keyType;
+    final Pair<String> keyPadClickResult =
+        KeyPadCallback.onKeyPadClick(expression, output, key);
 
-    var _expression = expression;
-    var _output = "";
-
-    final length = _expression.length;
-
-    if (buttonValue == '⌫' && _expression.isNotEmpty) {
-      num deleteLength;
-      if (_expression[length - 1] == " ") {
-        deleteLength = 3;
-      } else {
-        deleteLength = 1;
-      }
-      _expression = _expression.substring(0, length - deleteLength);
-    } else if (output.isNotEmpty || buttonValue == 'C') {
-      _expression = "";
-    } else if (buttonValue == '=') {
-      final calculator = new Calculator();
-      _output = calculator.parseExpression(expression.trim()).toString();
-    } else if (keyType == KeyType.POINT &&
-        isDecimalPointPossible(_expression)) {
-      _expression += displayValue;
-    } else if (keyType == KeyType.DIGIT ||
-        (keyType == KeyType.RANDOM &&
-            (_expression.isEmpty || _expression[length - 1] == ' '))) {
-      _expression += displayValue;
-    } else if (keyType == KeyType.OPERATOR && isOperatorPossible(_expression)) {
-      _expression += " " + displayValue + " ";
-    }
+    var _expression = keyPadClickResult.first;
+    var _output = keyPadClickResult.second;
 
     setState(() {
       expression = _expression;
       output = _output;
     });
-  }
-
-  bool isOperatorPossible(String s) {
-    if (s.isEmpty) {
-      return false;
-    }
-
-    List<String> values = s.split(" ");
-    String lastValue = values[values.length - 1];
-    return isNumeric(lastValue) || s.endsWith('² ') || s.endsWith('³ ');
-  }
-
-  bool isNumeric(String s) {
-    if (s == null) {
-      return false;
-    }
-
-    try {
-      return double.parse(s) != null;
-    } catch (exception) {
-      return false;
-    }
-  }
-
-  bool isDecimalPointPossible(String s) {
-    if (s.isEmpty || s[s.length - 1] == " ") {
-      return true;
-    }
-
-    List<String> values = s.split(" ");
-    String lastValue = values[values.length - 1];
-    bool isContainsDot = !lastValue.contains(r".");
-    return isContainsDot;
-  }
-
-  num getRandomNumber() {
-    return new Random().nextDouble();
   }
 
   void copyOutput(String output) {

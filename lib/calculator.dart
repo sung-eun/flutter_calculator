@@ -44,7 +44,7 @@ class Calculator {
       res = doOperateSquare(op1, op);
     } else {
       num op2 = digitQueue.removeLast();
-      res = doOperate(op1, op2, op);
+      res = doOperate(op2, op1, op);
     }
     digitQueue.addLast(res);
   }

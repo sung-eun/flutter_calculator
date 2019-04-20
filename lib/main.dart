@@ -28,13 +28,13 @@ class MyAppState extends State<MyApp> {
         ),
         home: Scaffold(
             appBar: AppBar(
-              title: Text("Calculator"),
+              title: Text("Simple Calculator"),
               actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.history),
                   onPressed: () {
                     Navigator.push(
-                        context,
+                        this.context,
                         new MaterialPageRoute(
                             builder: (context) => new History()));
                   },
@@ -43,45 +43,53 @@ class MyAppState extends State<MyApp> {
             ),
             body: Builder(builder: (BuildContext context) {
               this.context = context;
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[buildLabels(), KeyPad(onKeyPadClick)],
+              return Container(
+                color: Colors.white,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[buildLabels(), KeyPad(onKeyPadClick)],
+                ),
               );
             })));
   }
 
-  Column buildLabels() {
+  Expanded buildLabels() {
     var expressionWidget = Container(
         alignment: Alignment.centerRight,
-        color: Colors.white,
         child: Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(16.0),
             child: Text(expression,
                 style: TextStyle(fontSize: 30.0, color: Colors.black54),
                 textAlign: TextAlign.right)));
 
     var outputWidget = Container(
-        alignment: Alignment.centerRight,
-        color: Colors.white,
+        alignment: Alignment.bottomRight,
         child: GestureDetector(
             onLongPress: () {
               copyOutput(output);
             },
             child: Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(16.0),
                 child: Text(output,
                     style: TextStyle(fontSize: 35.0, color: Colors.black),
                     textAlign: TextAlign.right))));
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[expressionWidget, outputWidget],
+    return Expanded(
+      flex: 2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[expressionWidget, outputWidget],
+      ),
     );
   }
 
   void onKeyPadClick(Key key) {
     var _expression = expression;
     var _output = "";
+
+    if (output.isNotEmpty) {
+      _expression = "";
+    }
 
     final buttonValue = key.buttonValue;
     final displayValue = key.displayValue;
@@ -123,27 +131,34 @@ class KeyPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Expanded(
-      flex: 4,
+      flex: 5,
       child: new GridView.count(
-        crossAxisCount: 4,
+        shrinkWrap: true,
+        primary: true,
+        crossAxisCount: 5,
         children: <Key>[
           Key('C', '', KeyType.OPERATOR),
+          Key('(', '(', KeyType.OPERATOR),
+          Key(')', ')', KeyType.OPERATOR),
           Key('%', '%', KeyType.OPERATOR),
-          Key('x²', '²', KeyType.OPERATOR),
-          Key('x³', '³', KeyType.OPERATOR),
+          Key('⌫', '', KeyType.OPERATOR),
           Key('7', '7', KeyType.DIGIT),
           Key('8', '8', KeyType.DIGIT),
           Key('9', '9', KeyType.DIGIT),
-          Key('×', '×', KeyType.OPERATOR),
+          Key('+', '+', KeyType.OPERATOR),
+          Key('x²', '²', KeyType.OPERATOR),
           Key('4', '4', KeyType.DIGIT),
           Key('5', '5', KeyType.DIGIT),
           Key('6', '6', KeyType.DIGIT),
-          Key('−', '-', KeyType.OPERATOR),
+          Key('−', '−', KeyType.OPERATOR),
+          Key('x³', '³', KeyType.OPERATOR),
           Key('1', '1', KeyType.DIGIT),
           Key('2', '2', KeyType.DIGIT),
           Key('3', '3', KeyType.DIGIT),
-          Key('+', '+', KeyType.OPERATOR),
+          Key('×', '×', KeyType.OPERATOR),
+          Key('🎲', '', KeyType.OPERATOR),
           Key('0', '0', KeyType.DIGIT),
+          Key('', '', KeyType.EMPTY),
           Key('.', '.', KeyType.DIGIT),
           Key('÷', '÷', KeyType.OPERATOR),
           Key('=', '', KeyType.OPERATOR)
@@ -182,6 +197,7 @@ class KeyPadButton extends StatelessWidget {
         ),
       ),
       borderSide: BorderSide(width: 0.25, color: Colors.black12),
+      highlightColor: Colors.white70,
       onPressed: () {
         keyPadCallBack(keyPad);
       },

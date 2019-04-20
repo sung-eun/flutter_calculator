@@ -1,3 +1,7 @@
 60/0/5
 
-#Flutter Calculator
+# Flutter Calculator
+
+The Simple Calculator written in Flutter.
+
+![Screenshot](/screenshots/screenshots.png)

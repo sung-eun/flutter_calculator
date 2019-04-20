@@ -104,7 +104,7 @@ class _MyAppState extends State<MyApp> {
     Clipboard.setData(ClipboardData(text: output));
 
     Scaffold.of(context).showSnackBar(new SnackBar(
-      content: new Text("복사되었습니다."),
+      content: new Text("Copied."),
     ));
   }
 }

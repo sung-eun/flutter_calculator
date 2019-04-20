@@ -1,3 +1,3 @@
-30/0/5
+40/0/5
 
 #Flutter Calculator

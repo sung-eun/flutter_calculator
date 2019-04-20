@@ -3,16 +3,14 @@ import 'dart:collection';
 var digits = <String>['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 var operators = <String>['×', '−', '+', '÷'];
 
-enum KeyType { DIGIT, OPERATOR, EMPTY }
-
 class Calculator {
-  const Calculator();
+  Calculator();
 
-  num parseExpression(String expr) {
-    Queue<String> operatorQueue = new ListQueue<String>();
-    Queue<num> digitQueue = new ListQueue<num>();
+  Queue<String> operatorQueue = new ListQueue<String>();
+  Queue<num> digitQueue = new ListQueue<num>();
 
-    expr.split(' ').forEach((String c) {
+  num parseExpression(String expression) {
+    expression.split(' ').forEach((String c) {
       if (isOperator(c)) {
         if (operatorQueue.isEmpty) {
           operatorQueue.addLast(c);
@@ -20,12 +18,7 @@ class Calculator {
           while (operatorQueue.isNotEmpty &&
               digitQueue.isNotEmpty &&
               getPriority(c) <= getPriority(operatorQueue.last)) {
-            num op1 = digitQueue.removeLast();
-            num op2 = digitQueue.removeLast();
-            String op = operatorQueue.removeLast();
-
-            num res = calculate(op2, op1, op);
-            digitQueue.addLast(res);
+            calculate();
           }
           operatorQueue.addLast(c);
         }
@@ -35,18 +28,22 @@ class Calculator {
     });
 
     while (operatorQueue.isNotEmpty) {
-      num op1 = digitQueue.removeLast();
-      num op2 = digitQueue.removeLast();
-      String op = operatorQueue.removeLast();
-
-      num res = calculate(op2, op1, op);
-      digitQueue.addLast(res);
+      calculate();
     }
 
     return digitQueue.removeLast();
   }
 
-  num calculate(num op1, num op2, String op) {
+  num calculate() {
+    num op1 = digitQueue.removeLast();
+    num op2 = digitQueue.removeLast();
+    String op = operatorQueue.removeLast();
+
+    num res = doOperate(op2, op1, op);
+    digitQueue.addLast(res);
+  }
+
+  num doOperate(num op1, num op2, String op) {
     switch (op) {
       case '+':
         return op1 + op2;

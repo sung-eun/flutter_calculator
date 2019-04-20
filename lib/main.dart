@@ -1,12 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'calculator.dart';
 import 'history.dart';
+import 'keypad.dart';
 
 void main() => runApp(MyApp());
-
-typedef KeyPadCallBack = void Function(Key key);
 
 class MyApp extends StatefulWidget {
   @override
@@ -83,28 +84,39 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  void onKeyPadClick(Key key) {
-    var _expression = expression;
-    var _output = "";
-
-    if (output.isNotEmpty) {
-      _expression = "";
-    }
-
+  void onKeyPadClick(Button key) {
     final buttonValue = key.buttonValue;
     final displayValue = key.displayValue;
     final keyType = key.keyType;
 
-    if (buttonValue == 'C') {
+    var _expression = expression;
+    var _output = "";
+
+    final length = _expression.length;
+    bool isOperatorPossible =
+        _expression.isNotEmpty && isNumeric(_expression[length - 1]);
+
+    if (buttonValue == '⌫' && _expression.isNotEmpty) {
+      num deleteLength;
+      if (_expression[length - 1] == " ") {
+        deleteLength = 3;
+      } else {
+        deleteLength = 1;
+      }
+      _expression = _expression.substring(0, length - deleteLength);
+    } else if (output.isNotEmpty || buttonValue == 'C') {
       _expression = "";
-      _output = "";
     } else if (buttonValue == '=') {
       final calculator = new Calculator();
       _output = calculator.parseExpression(expression).toString();
-    } else if (keyType == KeyType.DIGIT) {
+    } else if (keyType == KeyType.POINT &&
+        isDecimalPointPossible(_expression)) {
       _expression += displayValue;
-    } else if (keyType == KeyType.OPERATOR) {
-      //&& _expression.last == digit
+    } else if (keyType == KeyType.DIGIT ||
+        (keyType == KeyType.RANDOM &&
+            (_expression.isEmpty || _expression[length - 1] == ' '))) {
+      _expression += displayValue;
+    } else if (keyType == KeyType.OPERATOR && isOperatorPossible) {
       _expression += " " + displayValue + " ";
     }
 
@@ -114,93 +126,37 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  bool isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+    try {
+      return double.parse(s) != null;
+    } catch (exception) {
+      return false;
+    }
+  }
+
+  bool isDecimalPointPossible(String s) {
+    if (s.isEmpty || s[s.length - 1] == " ") {
+      return true;
+    }
+
+    List<String> values = s.split(" ");
+    String lastNumber = values[values.length - 1];
+    bool isContainsDot = !lastNumber.contains(r".");
+    return isContainsDot;
+  }
+
+  num getRandomNumber() {
+    return new Random().nextDouble();
+  }
+
   void copyOutput(String output) {
     Clipboard.setData(ClipboardData(text: output));
 
     Scaffold.of(context).showSnackBar(new SnackBar(
       content: new Text("복사되었습니다."),
     ));
-  }
-}
-
-class KeyPad extends StatelessWidget {
-  final KeyPadCallBack keyPadCallBack;
-
-  KeyPad(this.keyPadCallBack);
-
-  @override
-  Widget build(BuildContext context) {
-    return new Expanded(
-      flex: 5,
-      child: new GridView.count(
-        shrinkWrap: true,
-        primary: true,
-        crossAxisCount: 5,
-        children: <Key>[
-          Key('C', '', KeyType.OPERATOR),
-          Key('(', '(', KeyType.OPERATOR),
-          Key(')', ')', KeyType.OPERATOR),
-          Key('%', '%', KeyType.OPERATOR),
-          Key('⌫', '', KeyType.OPERATOR),
-          Key('7', '7', KeyType.DIGIT),
-          Key('8', '8', KeyType.DIGIT),
-          Key('9', '9', KeyType.DIGIT),
-          Key('+', '+', KeyType.OPERATOR),
-          Key('x²', '²', KeyType.OPERATOR),
-          Key('4', '4', KeyType.DIGIT),
-          Key('5', '5', KeyType.DIGIT),
-          Key('6', '6', KeyType.DIGIT),
-          Key('−', '−', KeyType.OPERATOR),
-          Key('x³', '³', KeyType.OPERATOR),
-          Key('1', '1', KeyType.DIGIT),
-          Key('2', '2', KeyType.DIGIT),
-          Key('3', '3', KeyType.DIGIT),
-          Key('×', '×', KeyType.OPERATOR),
-          Key('🎲', '', KeyType.OPERATOR),
-          Key('0', '0', KeyType.DIGIT),
-          Key('', '', KeyType.EMPTY),
-          Key('.', '.', KeyType.DIGIT),
-          Key('÷', '÷', KeyType.OPERATOR),
-          Key('=', '', KeyType.OPERATOR)
-        ].map((key) {
-          return new GridTile(
-            child: new KeyPadButton(key, keyPadCallBack),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class Key {
-  final String buttonValue;
-  final String displayValue;
-  final KeyType keyType;
-
-  Key(this.buttonValue, this.displayValue, this.keyType);
-}
-
-class KeyPadButton extends StatelessWidget {
-  final Key keyPad;
-  final KeyPadCallBack keyPadCallBack;
-
-  KeyPadButton(this.keyPad, this.keyPadCallBack);
-
-  @override
-  Widget build(BuildContext context) {
-    return new OutlineButton(
-      child: new Text(
-        keyPad.buttonValue,
-        style: new TextStyle(
-          fontSize: 20.0,
-          color: Colors.black,
-        ),
-      ),
-      borderSide: BorderSide(width: 0.25, color: Colors.black12),
-      highlightColor: Colors.white70,
-      onPressed: () {
-        keyPadCallBack(keyPad);
-      },
-    );
   }
 }
